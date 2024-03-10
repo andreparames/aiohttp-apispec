@@ -9,7 +9,9 @@ from aiohttp import web
 from aiohttp.hdrs import METH_ALL, METH_ANY
 from apispec import APISpec
 from apispec.core import VALID_METHODS_OPENAPI_V2
-from apispec.ext.marshmallow import MarshmallowPlugin, common
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_pydantic_plugin import PydanticPlugin
+
 from jinja2 import Template
 from webargs.aiohttpparser import parser
 
@@ -59,6 +61,7 @@ class AiohttpApiSpec:
         prefix='',
         schema_name_resolver=resolver,
         openapi_version=None,
+        plugin_class=MarshmallowPlugin,
         **kwargs,
     ):
         openapi_version = openapi_version or OpenApiVersion.V20
@@ -69,7 +72,7 @@ class AiohttpApiSpec:
                 f"Invalid `openapi_version`: {openapi_version!r}"
             ) from None
 
-        self.plugin = MarshmallowPlugin(schema_name_resolver=schema_name_resolver)
+        self.plugin = plugin_class(schema_name_resolver=schema_name_resolver)
         self.spec = APISpec(
             plugins=(self.plugin,),
             openapi_version=openapi_version.value,
